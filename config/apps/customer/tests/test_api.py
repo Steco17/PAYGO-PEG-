@@ -42,7 +42,8 @@ class CustomerTests(APITestCase):
 
     def test_list_customers(self):
         # login
-        self.client.force_login(user=self.superuser)
+        #self.client.force_authenticate(self.superuser)
+        self.client.force_authenticate(self.superuser)
         url = reverse('customers-list')
         data = {}
         res = self.client.get(url, data, format='json')
@@ -51,7 +52,7 @@ class CustomerTests(APITestCase):
 
     def test_get_song(self):
         # login
-        self.client.force_login(user=self.superuser)
+        self.client.force_authenticate(self.superuser)
         url = reverse('customers-detail', kwargs={"pk": self.customer.pk})
         data = {}
         res = self.client.get(url, data, format='json')
@@ -63,7 +64,7 @@ class CustomerTests(APITestCase):
 
     def test_create_customer_allowed(self):
         #login
-        self.client.force_login(user=self.superuser)
+        self.client.force_authenticate(self.superuser)
         url = reverse('customers-list')
         data = {
             "username":'kevin',
@@ -99,13 +100,13 @@ class CustomerTests(APITestCase):
         }
         
         res = self.client.post(url, data, format='json')
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
     """
     testing if we could modify a customer's detail
     """
     def test_change_customer_allowed(self):
         # login
-        self.client.force_login(user=self.superuser)
+        self.client.force_authenticate(self.superuser)
 
         url = reverse('customers-detail', kwargs={'pk': self.customer.pk})
         data = {
@@ -132,7 +133,7 @@ class CustomerTests(APITestCase):
             'arrears_prepayment': 200.0,
         }
         res = self.client.patch(url, data, format='json')
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_customer_restricted(self):
         # logout if login
@@ -142,11 +143,11 @@ class CustomerTests(APITestCase):
         data = {}
 
         res = self.client.delete(url, data, format='json')
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_customer_allowed(self):
         # logout if login
-        self.client.force_login(user=self.superuser)
+        self.client.force_authenticate(self.superuser)
 
         url = reverse('customers-detail', kwargs={'pk': self.customer_to_delete.pk})
         data = {}
