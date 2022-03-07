@@ -24,16 +24,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PAYGO Agent',
       debugShowCheckedModeBanner: false,
+      /// defining applicaion theme
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(secondary: Colors.white70)
       ),
       home: const MyHomePage(),
@@ -44,7 +36,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
-
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -57,6 +48,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   Future<List<Customer>> fetchCustomer() async {
+    ///initializing customer list from the api wile setting it to a future list
+    ///flowing the model defined int the customer.dart file.
+    ///the list can only be gotten through authorization code from a loged in agent
+    ///which is shared through the sharedP reference from the login view.
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var _preferencesKey = sharedPreferences.getString('token');
 
@@ -69,8 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
           'Authorization': 'Token $_preferencesKey',
         },
     );
-    print(_preferencesKey);
-    print(response.statusCode);
+    //print(_preferencesKey);
+   // print(response.statusCode);
     if (response.statusCode == 200) {
       print(response.body);
       var getCustomersData = json.decode(response.body) as List;
@@ -84,6 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   checkLoginStatus() async{
+    /// this function checks if the Agent was login in by checking the shared[reference value token
+    /// if not then the app loads the login page
     sharedPreferences = await SharedPreferences.getInstance();
     if(sharedPreferences.getString("token") == null){
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => const LoginPage()), (route) => false);
@@ -93,6 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   @override
   void initState(){
+    ///adding listeners to check agent's login state and fetch
+    ///customers
     super.initState();
     checkLoginStatus();
     listCustomers = fetchCustomer();
@@ -100,12 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    /// creating the app's body
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -116,9 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              /*showsearch(
-                 // context: context, delegate: SearchName(SearchName: listCustomers)
-              );*/
+             // showSearch(context: context, delegate: SearchName( listCustomers: listCustomers));
             },
 
           ),
@@ -126,6 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
         centerTitle: true,
       ),
+      ///defining the body of the app by displaying the customer list from
+      ///the server and divided each user with a seperator
       body: FutureBuilder <List<Customer>>(
         future: listCustomers,
         builder:(context, snapshot){
@@ -178,6 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
         } ,
 
       ),
+      ///creating side menu that will hold the sign out button
       drawer:  Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -203,10 +198,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-/*
-class SearchName extends SearchDelegate<Customer> {
-  late List<Customer> searchName;
-  SearchName({required this.searchName});
+/*  late Future<List<Customer>> listCustomers;
+  SearchName({required this.listCustomers});
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -221,30 +214,34 @@ class SearchName extends SearchDelegate<Customer> {
 
   @override
   Widget? buildLeading(BuildContext context) {
+    //lead icon on the left of the search bar
     return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
+      icon:AnimatedIcon(
+        icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
+      ),
+      onPressed: (){},
     );
   }
 
   @override
-  Widget buildResults(BuildContext context) {
-    final results = searchName
+  Widget buildSuggestions(BuildContext context) {
+    //show some sugestion from the custoner list
+    List customer =  listCustomers as List ;
+    final results = customer
         .where((q) => q.username.toLowerCase().contains(query.toLowerCase()))
         .toList();
     return ListView(
         children: results
             .map<ListTile>(
-              (f) => ListTile(
+              (customer) => ListTile(
             title: Text(
-              f.username,
+                customer.username,
                 style: const TextStyle(fontWeight: FontWeight.bold,
                     fontSize: 22)
             ),
             onTap: () {
-              query = f.username;
+              query = customer.username;
 
               // close(context, f);
               // Navigator.pop(context);
@@ -255,8 +252,10 @@ class SearchName extends SearchDelegate<Customer> {
   }
 
   @override
-  Widget buildSuggestions(BuildContext context) {
-    final results = searchName
+  Widget buildResults(BuildContext context) {
+    //shows when someone searches for something
+    List customer =  listCustomers as List ;
+    final results = customer
         .where((q) => q.username.toLowerCase().contains(query.toLowerCase()))
         .toList();
     return ListView(

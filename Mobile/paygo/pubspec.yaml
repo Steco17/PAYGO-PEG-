@@ -37,6 +37,7 @@ dependencies:
   http: ^0.13.4
   shared_preferences: any
   intl: ^0.17.0
+  search_page: ^2.0.0+1
 
 dev_dependencies:
   flutter_test:

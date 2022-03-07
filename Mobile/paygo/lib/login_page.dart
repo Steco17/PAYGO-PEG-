@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.teal, Colors.blueGrey],
+          colors: [Colors.white70, Colors.blue],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter),
         ),
@@ -70,11 +70,14 @@ class _LoginPageState extends State<LoginPage> {
   TextFormField txtUsername(String title, IconData icon){
     return TextFormField(
       controller: agentController,
-      style: const TextStyle(color: Colors.white70),
+      style: const TextStyle(color: Colors.black45),
       decoration: InputDecoration(
         hintText: title,
-        hintStyle: const TextStyle(color: Colors.white70),
-        icon: Icon(icon)
+          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+          icon: Icon(icon),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50.0)
+          )
       ),
     );
   }
@@ -83,11 +86,14 @@ class _LoginPageState extends State<LoginPage> {
     return TextFormField(
       controller: passwordController,
       obscureText: true,
-      style: const TextStyle(color: Colors.white70),
+      style: const TextStyle(color: Colors.black45),
       decoration: InputDecoration(
           hintText: 'Agent Name',
-          hintStyle: const TextStyle(color: Colors.white70),
-          icon: Icon(icon)
+          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+          icon: Icon(icon),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50.0)
+          )
       ),
     );
   }
@@ -98,29 +104,29 @@ class _LoginPageState extends State<LoginPage> {
       height: 40.0,
       margin: const EdgeInsets.only(top: 30.0),
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: TextButton(
+      child: RaisedButton(
         onPressed: (){
           setState(() {
             _isLoading = true;
           });
           signIn(agentController.text, passwordController.text);
         },
-        style: ButtonStyle(
-          overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                  (Set<MaterialState> states) {
-                if (states.contains(MaterialState.focused)) {
-                  return Colors.blueGrey;
-                }
-                return null; // Defer to the widget's default.
-              }
-          ),
+        color: Colors.black87,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50)
         ),
         child: const Text("sign In", style: TextStyle(color: Colors.white70),),
       ),
     );
   }
 
+
+
    signIn(String username, String password)async {
+    ///creating the sing in function which will get the username and passwords from the
+     ///login form and sends it va the longin api lin to the server which will in turn authenticate
+     ///the agent and return an authorization code. this code will be stored to keep the agent logged in
+     ///after the token returned, the home page is opened.
     Map data = {
       'username': username,
       'password': password
@@ -128,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
     var jsonData;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var  url=
-    Uri.parse('https://paygoapp.herokupeg.com/api/v1/dj-rest-auth/login/');
+    Uri.parse('https://paygoapp.herokuapp.com/api/v1/dj-rest-auth/login/');
 
     var response = await http.post(
         url,
